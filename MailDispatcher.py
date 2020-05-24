@@ -3,6 +3,9 @@ import imaplib
 import time
 from SubjectHandler import SubjectHandler
 
+# custom imports for nodes
+# import yourLib
+
 SubHandler = SubjectHandler()
 
 mail_addr = None
@@ -55,15 +58,15 @@ def mail_handling():
     typ, data = mail_connection.search(None, 'ALL')
     mail_ids = data[0].split()
     for i in reversed(mail_ids):
-        mail_connection.fetch(i, '(RFC822)')
+        typ, data = mail_connection.fetch(i, '(RFC822)')
         for response_part in data:
             if isinstance(response_part, tuple):
                 msg = email.message_from_string(response_part[1].decode('utf-8'))
                 email_subject = msg['subject']
                 email_from = msg['from']
                 email_content = str(msg)
-                messages.extend([email_subject, email_from, email_content])
-        mail_connection.store(i, '\\Deleted')
+                messages.append([email_subject, email_from, email_content])
+        mail_connection.store(i, '+FLAGS', '\\Deleted')
     mail_connection.logout()
     return messages
 
